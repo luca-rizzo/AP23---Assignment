@@ -1,0 +1,16 @@
+run = "{ echo main ; cat - ; } | exec ghci Main.hs"
+entrypoint = "Main.hs"
+
+hidden = [".ghci", "ghci_wrapper.sh"]
+
+[nix]
+channel = "stable-22_11"
+
+[languages.haskell]
+pattern = "**/*.hs"
+
+[languages.haskell.languageServer]
+start = ["haskell-language-server-wrapper", "--lsp"]
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", ".ghci"]

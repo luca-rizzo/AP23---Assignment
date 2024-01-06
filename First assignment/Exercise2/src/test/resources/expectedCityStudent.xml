@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<City>
+    <nameOfCity type="String">Rome</nameOfCity>
+    <numberOfCitizen type="int">2873000</numberOfCitizen>
+    <isCapital type="boolean">true</isCapital>
+</City>
+<Student>
+    <firstName type="String">Luca</firstName>
+    <surname type="String">Rizzo</surname>
+    <age type="int">23</age>
+</Student>

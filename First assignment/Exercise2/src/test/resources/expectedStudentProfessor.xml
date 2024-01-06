@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Student>
+    <firstName type="String">Jane</firstName>
+    <surname type="String">Doe</surname>
+    <age type="int">42</age>
+</Student>
+<notXMLable/>
