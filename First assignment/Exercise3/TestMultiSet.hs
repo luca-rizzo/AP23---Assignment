@@ -8,18 +8,19 @@ import Data.List (sort)
 import Text.Printf (printf)
 import Data.Char (toLower)
 
--- Reads a file, returning an MSet of strings.
+-- Reads the content of a file with the provided filename, tokenizes it into words, 
+-- and returns the MSet obtained by adding each word in its "ciao" form to the MSet.
 readMSet :: FilePath -> IO (MSet String)
 readMSet filename = do 
   -- Read the file content as a string
   fileContent <- readFile filename
-  -- Transforms all words in the file to their "ciao" representation
-  let ciaoWord = map toCiao $ words fileContent
-  -- Add all words to an MSet
-  let mSet = addAll empty ciaoWord
+  -- Tokenize the content into words and transform each word to its "ciao" representation
+  let ciaoWords = map toCiao $ words fileContent
+  -- Add all ciao words to an MSet
+  let mSet = addAll empty ciaoWords
   return mSet
 
--- Writes an MSet of strings to a file.
+-- Writes an MSet of strings to a file with a provided filename
 writeMSet :: MSet String -> FilePath -> IO ()
 writeMSet mSet filename = do 
   -- Extract the list from the MSet using pattern matching
