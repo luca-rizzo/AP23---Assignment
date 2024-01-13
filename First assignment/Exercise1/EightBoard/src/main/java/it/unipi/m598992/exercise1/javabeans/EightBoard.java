@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package it.unipi.m598992.exercise1.javabeans;
 
 import it.unipi.m598992.exercise1.events.FlipEvent;
@@ -15,8 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
- * @author Luca Rizzo
+ * EightBoard class represents the graphical user interface for the Eight Puzzle game.
+ * It provides a visual representation of the game board and manages the interaction with the user.
+ * Additionally, it produces RestartEvents and notifies all related listeners.
  */
 public class EightBoard extends javax.swing.JFrame implements FlipListener {
 
@@ -29,22 +26,80 @@ public class EightBoard extends javax.swing.JFrame implements FlipListener {
     public EightBoard() {
         initComponents();
         tileList = Arrays.asList(eightTile1, eightTile2, eightTile3, eightTile4, eightTile5,
-                        eightTile6, eightTile7, eightTile8, eightTile9);
-        tileList.stream().forEach(tile -> tile.addVetoableChangeListener("label", eightController));
-        tileList.stream().forEach(tile -> tile.addPropertyChangeListener("label", eightController));
-        tileList.stream().forEach(this::registerOtherTileToLabelChange);
+                eightTile6, eightTile7, eightTile8, eightTile9);
+        registerEightControllerToTiles();
+        registerTilesToEachOther();
+        // registers eightBoard as a listener of flip event in order to be informed when flip action is possible
         eightController.addFlipListener(this);
         registerRestartListener();
-        notifyAllRestartListener();
+        // to initialize the game, fire a restart event to notify all listeners
+        notifyAllRestartListener(new RestartEvent());
     }
 
-    private void registerOtherTileToLabelChange(EightTile tile) {
-        tileList.stream().filter(innerTile -> innerTile != tile)
-                .forEach(innerTile -> tile.addPropertyChangeListener("label", innerTile));
+    /**
+     * Adds a RestartListener to the list of restartListeners.
+     *
+     * @param l The RestartListener to be added.
+     */
+    public synchronized void addRestartListener(RestartListener l) {
+        restartListeners.add(l);
+    }
+
+    /**
+     * Removes a RestartListener from the list of restartListeners.
+     *
+     * @param l The RestartListener to be removed.
+     */
+    public synchronized void removeRestartListener(RestartListener l) {
+        restartListeners.remove(l);
+    }
+
+    /**
+     * Callback to be informed by the controller about the state of flip.
+     * If it is possible, it enables the flip button.
+     *
+     * @param flipStatusEvent The FlipStatusEvent indicating whether flip action is enabled.
+     */
+    @Override
+    public void onFlipUpdate(FlipStatusEvent flipStatusEvent) {
+        // Callback to be informed by the controller about the state of flip.
+        // If it is possible, it enables the flip button.
+        flipButton.setEnabled(flipStatusEvent.flipEnabled());
+    }
+
+    /**
+     * Callback to be informed when a flip action is requested.
+     * Implements the flip event as a restart action with the specific permutation provided by the controller,
+     * in which the first and second positions are swapped.
+     *
+     * @param flipEvent The FlipEvent containing the flipped permutation.
+     */
+    @Override
+    public void onFlip(FlipEvent flipEvent) {
+        RestartEvent restartEvent = new RestartEvent(flipEvent.flippedPermutation());
+        notifyAllRestartListener(restartEvent);
+    }
+
+    private void registerEightControllerToTiles() {
+        // registers eightController as a vetoableChangeListener to label to prevent disallowed moves of tiles
+        tileList.stream().forEach(tile -> tile.addVetoableChangeListener("label", eightController));
+        // registers the EightController as a PropertyChangeListener to the "label" property of each tile
+        // to be informed when the label value changes, assuming other VetoableChangeListeners have not vetoed the change
+        tileList.stream().forEach(tile -> tile.addPropertyChangeListener("label", eightController));
+    }
+
+    private void registerTilesToEachOther() {
+        // Registers all tiles to listen for changes in the Label property of the other tiles.
+        // This is crucial for informing other tiles when they need to update their label value,
+        // especially when the specified tile represents the hole, and another tile is passing its old value to it.
+        tileList.stream().forEach(tile -> tileList.stream().filter(innerTile -> innerTile != tile)
+                .forEach(innerTile -> tile.addPropertyChangeListener("label", innerTile)));
     }
 
     private void registerRestartListener() {
+        //registers eightController as a restartEventListener
         addRestartListener(eightController);
+        //registers all tiles as a restartEventListener
         tileList.forEach(this::addRestartListener);
     }
 
@@ -59,17 +114,17 @@ public class EightBoard extends javax.swing.JFrame implements FlipListener {
 
         javax.swing.JPanel jPanel3 = new javax.swing.JPanel();
         javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
-        eightTile1 = new EightTile(1);
-        eightTile2 = new EightTile(2);
-        eightTile3 = new EightTile(3);
-        eightTile4 = new EightTile(4);
-        eightTile5 = new EightTile(5);
-        eightTile6 = new EightTile(6);
-        eightTile7 = new EightTile(7);
-        eightTile8 = new EightTile(8);
-        eightTile9 = new EightTile(9);
+        eightTile1 = new it.unipi.m598992.exercise1.javabeans.EightTile(1);
+        eightTile2 = new it.unipi.m598992.exercise1.javabeans.EightTile(2);
+        eightTile3 = new it.unipi.m598992.exercise1.javabeans.EightTile(3);
+        eightTile4 = new it.unipi.m598992.exercise1.javabeans.EightTile(4);
+        eightTile5 = new it.unipi.m598992.exercise1.javabeans.EightTile(5);
+        eightTile6 = new it.unipi.m598992.exercise1.javabeans.EightTile(6);
+        eightTile7 = new it.unipi.m598992.exercise1.javabeans.EightTile(7);
+        eightTile8 = new it.unipi.m598992.exercise1.javabeans.EightTile(8);
+        eightTile9 = new it.unipi.m598992.exercise1.javabeans.EightTile(9);
         javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
-        eightController = new EightController();
+        eightController = new it.unipi.m598992.exercise1.javabeans.EightController();
         javax.swing.JButton restartButton = new javax.swing.JButton();
         flipButton = new javax.swing.JButton();
 
@@ -179,54 +234,48 @@ public class EightBoard extends javax.swing.JFrame implements FlipListener {
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 260, Short.MAX_VALUE))
-                .addGap(10, 10, 10))
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 260, Short.MAX_VALUE))
+                                .addGap(10, 10, 10))
         );
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
-                .addContainerGap())
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void restartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restartButtonActionPerformed
-        notifyAllRestartListener();
+        // Notifies all restart listeners by creating a new RestartEvent with a new permutation and informing each listener.
+        notifyAllRestartListener(new RestartEvent());
     }//GEN-LAST:event_restartButtonActionPerformed
 
-    public synchronized void addRestartListener(RestartListener l) {
-        restartListeners.add(l);
-    }
-
-    public synchronized void removeRestartListener(RestartListener l) {
-        restartListeners.remove(l);
-    }
-
-    private void notifyAllRestartListener() {
-        RestartEvent restartEvent = new RestartEvent();
+    private synchronized void notifyAllRestartListener(RestartEvent restartEvent) {
+        // Notifies all restart listeners by creating a new RestartEvent with a new permutation and informing each listener.
         restartListeners.forEach(l -> l.onRestart(restartEvent));
     }
+
     /**
      * @param args the command line arguments
      */
@@ -261,27 +310,17 @@ public class EightBoard extends javax.swing.JFrame implements FlipListener {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private EightController eightController;
-    private EightTile eightTile1;
-    private EightTile eightTile2;
-    private EightTile eightTile3;
-    private EightTile eightTile4;
-    private EightTile eightTile5;
-    private EightTile eightTile6;
-    private EightTile eightTile7;
-    private EightTile eightTile8;
-    private EightTile eightTile9;
+    private it.unipi.m598992.exercise1.javabeans.EightController eightController;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile1;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile2;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile3;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile4;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile5;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile6;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile7;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile8;
+    private it.unipi.m598992.exercise1.javabeans.EightTile eightTile9;
     private javax.swing.JButton flipButton;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void onFlipUpdate(FlipStatusEvent flipStatusEvent) {
-        flipButton.setEnabled(flipStatusEvent.flipEnabled());
-    }
-
-    @Override
-    public void onFlip(FlipEvent flipEvent) {
-        RestartEvent restartEvent = new RestartEvent(flipEvent.flippedPermutation());
-        restartListeners.forEach(l -> l.onRestart(restartEvent));
-    }
 }
