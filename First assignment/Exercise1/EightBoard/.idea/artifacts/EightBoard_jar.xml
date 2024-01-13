@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="EightBoard:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/EightBoard_jar</output-path>
+    <root id="archive" name="EightBoard.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="EightBoard" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Shared/out/artifacts/Shared_jar/Shared.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../EightController/out/artifacts/EightController_jar/EightController.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../EightTile/out/artifacts/EightTile_jar/EightTile.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

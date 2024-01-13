@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="EightTile:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/EightTile_jar</output-path>
+    <root id="archive" name="EightTile.jar">
+      <element id="module-output" name="EightTile" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Shared/target/Shared-1.0-SNAPSHOT.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
