@@ -3,23 +3,32 @@ import time
 import statistics
 import functools
 
+# Create a decorator which runs "iter times" times "n_threads" in parallel
+# with each thread executing the decorated function "seq_iter" times
 def bench(n_threads: int = 1, seq_iter: int = 1, iter: int = 1):
+    # To create a decorator that takes input arguments, wrap the decorator in an outer function
+    # to create a closure storing the argument that the real decorator (decorator_bench) can later use
     def decorator_bench(fun):
         @functools.wraps(fun)
         def wrapper_bench(*args, **kwargs):
             iter_results = []
             for _ in range(iter):
                 start_time = time.perf_counter()
+                # create, start and join the threads for the current iteration
                 threads = _create_threads(n_threads, seq_iter, fun, *args, **kwargs)
                 _execute_thread(threads)
                 end_time = time.perf_counter()
+                # collect the result of iteration
                 iter_run_time = end_time - start_time
                 iter_results.append(iter_run_time)
+            # create output dictionary with benchmark results
             return _create_output(fun.__name__, n_threads, seq_iter, iter, iter_results, *args)
         return wrapper_bench
+    # return the decorator 
     return decorator_bench
 
-
+# Create a list of threads for parallel execution of fun_to_execute.
+# Each of the "n_threads" threads will execute "seq_iter" times the "fun_to_execute" function.
 def _create_threads(n_threads, seq_iter, fun_to_execute, *args, **kwargs):
     threads = []
     for _ in range(n_threads):
@@ -28,12 +37,14 @@ def _create_threads(n_threads, seq_iter, fun_to_execute, *args, **kwargs):
         threads.append(t)
     return threads
 
+# Start and join the previously created threads.
 def _execute_thread(threads):
     for t in threads:
         t.start()
     for t in threads:
         t.join()
                 
+# Create output dictionary with benchmark results
 def _create_output(fun_name, n_threads, seq_iter, iter, result, *args):
     return {
         "fun": fun_name,
@@ -45,14 +56,17 @@ def _create_output(fun_name, n_threads, seq_iter, iter, result, *args):
         "variance": statistics.variance(result)
     }
 
-def _thread_fun(seq_iter: int, fun, *args, **kwargs):
+# Function to execute "seq_iter" times the "fun_to_execute" function.
+def _thread_fun(seq_iter, fun_to_execute, *args, **kwargs):
     for _ in range(seq_iter):
-        fun(*args, **kwargs)
+        fun_to_execute(*args, **kwargs)
 
-def just_wait(n): # NOOP for n/10 seconds
+# NOOP for n/10 seconds
+def just_wait(n):
     time.sleep(n * 0.1)
-    
-def grezzo(n): # CPU intensive
+
+# CPU intensive 
+def grezzo(n): 
     for _ in range(2**n):
         pass
 
@@ -70,8 +84,6 @@ def test(iter, fun, args):
         file.write(str(result_four_threads) + "\n")
         file.write(str(result_eight_threads) + "\n")
         
-        
-
 # Example test with 'just_wait' function
 test(iter=5, fun=just_wait, args=(1,))
 
